@@ -1,0 +1,54 @@
+
+SQL*Loader: Release 12.1.0.2.0 - Production on Tue Mar 23 09:36:52 2021
+
+Copyright (c) 1982, 2014, Oracle and/or its affiliates.  All rights reserved.
+
+Control File:   /home/CAO//projetMBDS/SQLLOADER/control_clients.ctl
+Data File:      /home/CAO//projetMBDS/SQLLOADER/Clients_8.csv
+  Bad File:     /home/CAO//projetMBDS/SQLLOADER/Clients_8.bad
+  Discard File:  none specified
+ 
+ (Allow all discards)
+
+Number to load: ALL
+Number to skip: 1
+Errors allowed: 50
+Bind array:     64 rows, maximum of 256000 bytes
+Continuation:    none specified
+Path used:      Conventional
+
+Table CLIENT_8, loaded from every logical record.
+Insert option in effect for this table: INSERT
+TRAILING NULLCOLS option in effect
+
+   Column Name                  Position   Len  Term Encl Datatype
+------------------------------ ---------- ----- ---- ---- ---------------------
+AGE                                 FIRST     *   ,  O(") CHARACTER            
+SEXE                                 NEXT     *   ,  O(") CHARACTER            
+TAUX                                 NEXT     *   ,  O(") CHARACTER            
+SITUATIONFAMILIALE                   NEXT     *   ,  O(") CHARACTER            
+NBENFANTSACHARGE                     NEXT     *   ,  O(") CHARACTER            
+XVOITURE                             NEXT     *   ,  O(") CHARACTER            
+IMMATRICULATION                      NEXT     *   ,  O(") CHARACTER            
+
+
+Table CLIENT_8:
+  100000 Rows successfully loaded.
+  0 Rows not loaded due to data errors.
+  0 Rows not loaded because all WHEN clauses were failed.
+  0 Rows not loaded because all fields were null.
+
+
+Space allocated for bind array:                 115584 bytes(64 rows)
+Read   buffer bytes: 1048576
+
+Total logical records skipped:          1
+Total logical records read:        100000
+Total logical records rejected:         0
+Total logical records discarded:        0
+
+Run began on Tue Mar 23 09:36:52 2021
+Run ended on Tue Mar 23 09:36:56 2021
+
+Elapsed time was:     00:00:03.93
+CPU time was:         00:00:00.54
