@@ -15,52 +15,139 @@ library(naivebayes)
 library(rpart)
 library(C50)
 library(tree)
+library(stringr)
 
-##classPath : add path to drivers jdbc
+##Connection à la base de données
 
-drv <- RJDBC::JDBC(driverClass = "oracle.jdbc.OracleDriver", classPath =  
-                     Sys.glob("drivers/*"))
+connexion <- odbcConnect("ORCLPROJETDB_DNS", uid="PROJET", pwd="password1", believeNRows=FALSE)
+
+immatriculation<-sqlQuery(connexion, "SELECT * FROM IMMATRICULATION")
+marketing<-sqlQuery(connexion, "SELECT * FROM MARKETING")
+catalogue<-sqlQuery(connexion, "SELECT * FROM CATALOGUE")
+clients<-sqlQuery(connexion, "SELECT * FROM CLIENTS")
+
+immatriculation <- read.csv("Immatriculations.csv", header = TRUE, sep = ",", dec = ".")
+catalogue <- read.csv("Catalogue.csv", header = TRUE, sep = ",", dec = ".")
+marketing <- read.csv("Marketing.csv", header = TRUE, sep = ",", dec = ".")
+clients <- read.csv("Clients_8.csv", header = TRUE, sep = ",", dec = ".")
+
+#-----------------------Nettoyage des Données--------------------------#
+
+##Refactorisation données 
+
+clients$age <- as.integer(clients$age)
+clients$taux <- as.integer(clients$taux)
+clients$situationFamiliale <- as.factor(clients$situationFamiliale)
+clients$nbEnfantsAcharge <- as.integer(clients$nbEnfantsAcharge)
+clients$X2eme.voiture <- as.logical(clients$X2eme.voiture)
+clients$sexe <- as.factor(clients$sexe)
+clients$immatriculation <- as.character(clients$immatriculation)
+clients <- na.omit(clients)
+
+marketing$age <- as.integer(marketing$age)
+marketing$taux <- as.integer(marketing$taux)
+marketing$situationFamiliale <- as.factor(marketing$situationFamiliale)
+marketing$nbEnfantsAcharge <- as.integer(marketing$nbEnfantsAcharge)
+marketing$X2eme.voiture <- as.logical(marketing$X2eme.voiture)
+marketing$sexe <- as.factor(marketing$sexe)
+marketing <- na.omit(marketing)
+
+catalogue$marque <- as.character(catalogue$marque)
+catalogue$nom <- as.character(catalogue$nom)
+catalogue$puissance <- as.integer(catalogue$puissance)
+catalogue$longueur <- as.character(catalogue$longueur)
+catalogue$nbplaces <- as.integer(catalogue$nbPlaces)
+catalogue$nbportes <- as.integer(catalogue$nbPortes)
+catalogue$couleur <- as.character(catalogue$couleur)
+catalogue$occasion <- as.character(catalogue$occasion)
+catalogue$prix <- as.integer(catalogue$prix)
+catalogue <- na.omit(catalogue)
 
 
-#Connexion OK
-conn <- dbConnect(drv, "jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)
-                  (HOST=144.21.67.201)(PORT=1521))(CONNECT_DATA=
-                  (SERVICE_NAME=pdbest21.631174089.oraclecloud.internal)))",
-                  "AZALBERT2B20", "AZALBERT2B2001")
+immatriculation$marque <- as.character(immatriculation$marque)
+immatriculation$nom <- as.character(immatriculation$nom)
+immatriculation$puissance <- as.integer(immatriculation$puissance)
+immatriculation$longueur <- as.character(immatriculation$longueur)
+immatriculation$nbplaces <- as.integer(immatriculation$nbPlaces)
+immatriculation$nbportes <- as.integer(immatriculation$nbPortes)
+immatriculation$couleur <- as.character(immatriculation$couleur)
+immatriculation$occasion <- as.character(immatriculation$occasion)
+immatriculation$prix <- as.integer(immatriculation$prix)
+immatriculation$immatriculation <- as.character(immatriculation$immatriculation)
+immatriculation <- na.omit(immatriculation)
 
-allTables <- dbGetQuery(conn, "SELECT owner, table_name FROM all_tables where 
-                        owner = 'AZALBERT2B20'")
 
-marketing <- dbGetQuery(conn, "select * from Marketing")
-catalogue <- dbGetQuery(conn, "select * from Catalogue")
-client <- dbGetQuery(conn,"select * from Client")
 
-#Impossible de sauvegarder la table immatriculations, car trop volumineuse
-immatriculations <- read.csv("../DATA/data_initial/Immatriculations.csv", header = TRUE, 
-                             sep = ",", dec = ".")
+##Nettoyage Df Clients
 
-#Les données de la table client ont été nettoyées via sql
-#Refactorisation des Données
+#Nettoyage age
 
-client$SITUATIONFAMILIALE  <- as.factor(client$SITUATIONFAMILIALE )
-client$DEUXIEMEVOITURE <- as.logical(client$DEUXIEMEVOITURE)
-client$SEXE <- as.factor(client$SEXE)
+boxplot(clients$age, data=clients, main="Boite à Moustache pour l'âge d'un client
+        sans Nettoyage des Données")
 
-marketing$SEXE <- as.factor(marketing$SEXE)
-marketing$SITUATIONFAMILIALE <- as.factor(marketing$SITUATIONFAMILIALE)
-marketing$DEUXIEMEVOITURE <- as.logical(marketing$DEUXIEMEVOITURE)
+clients <- subset(clients, clients$age >= 17)
 
-catalogue$MARQUE <- as.factor(catalogue$MARQUE)
-catalogue$NOM <- as.factor(catalogue$NOM)
-catalogue$LONGUEUR <- as.factor(catalogue$LONGUEUR)
-catalogue$COULEUR <- as.factor(catalogue$COULEUR)
-catalogue$OCCASION <- as.logical(catalogue$OCCASION)
+boxplot(clients$age, data=clients, main="Boite à Moustache pour l'âge d'un client
+        avec Nettoyage des Données")
 
-immatriculations$marque <-  as.factor(immatriculations$marque)
-immatriculations$nom  <- as.factor(immatriculations$nom)
-immatriculations$longueur <-  as.factor(immatriculations$longueur)
-immatriculations$couleur <-  as.factor(immatriculations$couleur)
-immatriculations$occasion <-  as.logical(immatriculations$occasion)
+
+#Nettoyage sexe
+
+summary(clients$sexe);
+clients <- subset(clients, clients$sexe!="?" & clients$sexe!=" " & clients$sexe!="N/D")
+
+clients$sexe <- str_replace(clients$sexe, "Homme", "M")
+clients$sexe <- str_replace(clients$sexe, "Masculin", "M")
+clients$sexe <- str_replace(clients$sexe, "Féminin", "F")
+clients$sexe <- str_replace(clients$sexe, "Femme", "F")
+clients$sexe <- as.factor(clients$sexe)
+clients$sexe <- droplevels(clients$sexe)
+
+#Nettoyage taux
+
+summary(clients$taux)
+boxplot(clients$taux, data=clients, main="Boite à Moustache pour le taux d'un client
+        sans Nettoyage des Données")
+
+
+clients <- subset(clients, clients$taux >= 544)
+
+summary(clients$taux)
+boxplot(clients$taux, data=clients, main="Boite à Moustache pour le taux d'un client
+        avec Nettoyage des Données")
+
+
+
+#Nettoyage situation familiale
+
+summary(clients$situationFamiliale)
+
+clients <- subset(clients, clients$situationFamiliale != "?" &
+                    clients$situationFamiliale != " " & clients$situationFamiliale != "N/D")
+clients$situationFamiliale <- droplevels(clients$situationFamiliale)
+
+summary(clients$situationFamiliale)
+
+#Nettoyage enfants a charge
+
+summary(clients$nbEnfantsAcharge)
+
+clients <- subset(clients, clients$nbEnfantsAcharge >= 0)
+
+summary(clients$nbEnfantsAcharge)
+
+
+#Suppression des doublons 
+
+doublonsClients <- which(duplicated(clients$immatriculation))
+client <-clients[-doublonsClients,]
+
+##Nettoyage Df Immatriculations
+
+#Suppression des doublons dans le fichier immatriculations
+
+doublons <- which(duplicated(immatriculation$immatriculation))
+immatriculations<-immatriculation[-doublons,]
 
 summary(marketing)
 summary(catalogue)
@@ -71,7 +158,7 @@ summary(client)
 
 #Analyse Exploratoire pour déterminer des catégories
 
-catalogue$LONGUEUR <- factor(catalogue$LONGUEUR, c("courte", "moyenne", "longue","très longue"))
+catalogue$longueur <- factor(catalogue$longueur, c("courte", "moyenne", "longue","très longue"))
 
 qplot(LONGUEUR, PUISSANCE, data=catalogue, 
       main="Longueur de la voiture en fonction de la puissance",
@@ -128,20 +215,11 @@ qplot(immatriculations$categories, data=immatriculations)
 
 #-----------------------Nettoyage et fusion fichiers--------------------------#
 
-#Suppression des doublons dans le fichier immatriculations
 
-doublons <- which(duplicated(immatriculations$immatriculation))
-immatriculations<-immatriculations[-doublons,]
-
-#Suppression des doublons dans le fichier client
-
-doublons1 <- which(duplicated(client$IMMATRICULATION))
-client <-client[-doublons1,]
 
 
 #fusion du fichiers client et Immatriculation
 
-names(client)[7] = ("immatriculation")
 clients_immatriculations <- merge(immatriculations, client , by ="immatriculation")
 
 #Restructuration données
