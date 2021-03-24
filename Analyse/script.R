@@ -26,11 +26,6 @@ marketing<-sqlQuery(connexion, "SELECT * FROM MARKETING")
 catalogue<-sqlQuery(connexion, "SELECT * FROM CATALOGUE")
 clients<-sqlQuery(connexion, "SELECT * FROM CLIENTS")
 
-immatriculation <- read.csv("Immatriculations.csv", header = TRUE, sep = ",", dec = ".")
-catalogue <- read.csv("Catalogue.csv", header = TRUE, sep = ",", dec = ".")
-marketing <- read.csv("Marketing.csv", header = TRUE, sep = ",", dec = ".")
-clients <- read.csv("Clients_8.csv", header = TRUE, sep = ",", dec = ".")
-
 #-----------------------Nettoyage des Données--------------------------#
 
 ##Refactorisation données 
