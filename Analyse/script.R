@@ -26,6 +26,7 @@ marketing<-sqlQuery(connexion, "SELECT * FROM MARKETING")
 catalogue<-sqlQuery(connexion, "SELECT * FROM CATALOGUE")
 clients<-sqlQuery(connexion, "SELECT * FROM CLIENTS")
 
+
 #-----------------------Nettoyage des Données--------------------------#
 
 ##Refactorisation données 
@@ -71,6 +72,10 @@ immatriculation$prix <- as.integer(immatriculation$prix)
 immatriculation$immatriculation <- as.character(immatriculation$immatriculation)
 immatriculation <- na.omit(immatriculation)
 
+summary(catalogue)
+summary(immatriculation)
+summary(clients)
+summary(marketing)
 
 
 ##Nettoyage Df Clients
@@ -155,9 +160,9 @@ summary(client)
 
 catalogue$longueur <- factor(catalogue$longueur, c("courte", "moyenne", "longue","très longue"))
 
-qplot(LONGUEUR, PUISSANCE, data=catalogue, 
+qplot(longueur, puissance, data=catalogue, 
       main="Longueur de la voiture en fonction de la puissance",
-      xlab="Longueur de la Voiture", ylab="Puissance (en Chevaux)",color=NBPLACES)+  geom_jitter(width = 0.4) 
+      xlab="Longueur de la Voiture", ylab="Puissance (en Chevaux)",color=nbPlaces)+  geom_jitter(width = 0.4) 
 
 
 
@@ -188,17 +193,16 @@ immatriculations$categories <-  as.factor(immatriculations$categories)
 summary(immatriculations$categories)
 
 
-catalogue$categories <- ifelse(catalogue$LONGUEUR=="courte" & catalogue$PUISSANCE >=55 & catalogue$PUISSANCE <= 90 & catalogue$NBPLACES== 5,"citadine"  ,
-                               ifelse(catalogue$LONGUEUR=="courte" & catalogue$PUISSANCE > 90 & catalogue$NBPLACES== 5,"citadine sportive" ,
-                                      ifelse(catalogue$LONGUEUR=="moyenne" & catalogue$PUISSANCE >=55 & catalogue$PUISSANCE <= 100 & catalogue$NBPLACES== 5,"routiere",
-                                             ifelse(catalogue$LONGUEUR=="moyenne" & catalogue$PUISSANCE >=100 & catalogue$PUISSANCE <= 140 & catalogue$NBPLACES== 5,"routiere sportive",
-                                                    ifelse(catalogue$LONGUEUR=="moyenne" & catalogue$PUISSANCE > 140 & catalogue$NBPLACES== 5,"routiere ultra sportive" ,
-                                                           ifelse( catalogue$LONGUEUR=="très longue" & catalogue$PUISSANCE >=55 & catalogue$PUISSANCE <= 250 & catalogue$NBPLACES== 5,"berline" ,
-                                                                   ifelse( catalogue$LONGUEUR=="très longue" & catalogue$PUISSANCE >=250 & catalogue$PUISSANCE <= 350 & catalogue$NBPLACES== 5,"berline sportive" ,
-                                                                           ifelse( catalogue$LONGUEUR=="très longue" & catalogue$PUISSANCE > 350 & catalogue$NBPLACES== 5,"berline ultra sportive" ,
-                                                                                   ifelse(catalogue$LONGUEUR=="longue" & catalogue$PUISSANCE >=55 & catalogue$PUISSANCE <= 140   ,"familliale",
-                                                                                          ifelse(catalogue$LONGUEUR=="longue"  & catalogue$PUISSANCE > 140 ,"familliale sportive","aucune"))))))))))
-
+catalogue$categories <- ifelse(catalogue$longueur=="courte" & catalogue$puissance >=55 & catalogue$puissance <= 90 & catalogue$nbplaces== 5,"citadine"  ,
+                               ifelse(catalogue$longueur=="courte" & catalogue$puissance > 90 & catalogue$nbplaces== 5,"citadine sportive" ,
+                                      ifelse(catalogue$longueur=="moyenne" & catalogue$puissance >=55 & catalogue$puissance <= 100 & catalogue$nbplaces== 5,"routiere",
+                                             ifelse(catalogue$longueur=="moyenne" & catalogue$puissance >=100 & catalogue$puissance <= 140 & catalogue$nbplaces== 5,"routiere sportive",
+                                                    ifelse(catalogue$longueur=="moyenne" & catalogue$puissance > 140 & catalogue$nbplaces== 5,"routiere ultra sportive" ,
+                                                           ifelse( catalogue$longueur=="très longue" & catalogue$puissance >=55 & catalogue$puissance <= 250 & catalogue$nbplaces== 5,"berline" ,
+                                                                   ifelse( catalogue$longueur=="très longue" & catalogue$puissance >=250 & catalogue$puissance <= 350 & catalogue$nbplaces== 5,"berline sportive" ,
+                                                                           ifelse( catalogue$longueur=="très longue" & catalogue$puissance > 350 & catalogue$nbplaces== 5,"berline ultra sportive" ,
+                                                                                   ifelse(catalogue$longueur=="longue" & catalogue$puissance >=55 & catalogue$puissance <= 140   ,"familliale",
+                                                                                          ifelse(catalogue$longueur=="longue"  & catalogue$puissance > 140 ,"familliale sportive","aucune"))))))))))
 catalogue$categories <-  as.factor(catalogue$categories)
 str(catalogue$categories)
 summary(catalogue$categories)
@@ -243,15 +247,18 @@ clients_immatriculations <- subset(clients_immatriculations, select = -occasion)
 
 #Factorisation des Colonnes
 clients_immatriculations$categories <- as.factor(clients_immatriculations$categories)
-clients_immatriculations$AGE <- as.factor(clients_immatriculations$AGE)
-clients_immatriculations$SEXE <- as.factor(clients_immatriculations$SEXE)
-clients_immatriculations$SITUATIONFAMILIALE <- as.factor(clients_immatriculations$SITUATIONFAMILIALE)
-clients_immatriculations$NBENFANTSACHARGE <- as.factor(clients_immatriculations$NBENFANTSACHARGE)
-clients_immatriculations$DEUXIEMEVOITURE <- as.factor(clients_immatriculations$DEUXIEMEVOITURE)
+clients_immatriculations$age <- as.factor(clients_immatriculations$age)
+clients_immatriculations$sexe <- as.factor(clients_immatriculations$sexe)
+clients_immatriculations$situationFamiliale <- as.factor(clients_immatriculations$situationFamiliale)
+clients_immatriculations$nbEnfantsAcharge <- as.factor(clients_immatriculations$nbEnfantsAcharge)
+clients_immatriculations$X2eme.voiture <- as.factor(clients_immatriculations$X2eme.voiture)
+
+clients_immatriculations <- na.omit(clients_immatriculations)
+summary(clients_immatriculations)
 
 #Duplication du data set, pour ajout d'une colonne catégorie taux ultérieurement
 clients_immatriculations_taux <- clients_immatriculations[0:98246,]
-clients_immatriculations <- subset(clients_immatriculations, select = -TAUX)
+clients_immatriculations <- subset(clients_immatriculations, select = -taux)
 
 
 #ENSEMBLE D'APPRENTISSAGE
