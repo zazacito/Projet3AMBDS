@@ -13,44 +13,39 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.util.GenericOptionsParser;
-
-// Notre classe MAP.
-	// Les 4 types generiques correspondent a:
-	// 1 - Object: C'est le type de la cle d'entre.
-	// 2 - Text: C'est le type de la valeur d'entre.
-	// 3 - Text: C'est le type de la cle de sortie.
-	// 4 - Text: C'est le type de la valeur de sortie.
 	
 public class CarMap extends Mapper<Object, Text, Text, Text> {
-	
-	// La fonction MAP.
-		// Note: Le type du premier argument correspond au premier type generique.
-		// Note: Le type du second argument correspond au deuxieme type generique.
-		// Note: L'objet Context nous permet d'ecrire les couples (cle, valeur).
 		
 	protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
 
-		if (value.toString().contains("Marque")){ // pour ne pas prendre en compte la première ligne (en-tête)
+		//on ne prend pas en compte la première ligne qui est le titre des colonnes
+		if (value.toString().contains("Marque")){ 
 			return;
 		}
 
 		String line = value.toString(); 
+		//On foit remplacer tous les espaces par de "vrais" espaces
 		line = line.replaceAll("\\u00a0"," ");
 		
+		//on sépare les données
 		String[] splitted_line = line.split(","); 
 
-		// Gestion colonne marque
+		// Recuperation de la colonne marque 
 		String marque;
 		String[] splitted_space = splitted_line[1].split("\\s+"); 
+		//Seul le premier mot correspond au nom de la marque
 		marque = splitted_space[0];
-
+		
+		//Certaines marques commencent par des guillemets donc on les enleve
 		marque = marque.replace("\"", "");
 
-		// Gestion colonne Malus/Bonus
+		// Recuperation de la colonne Bonus/Malus
         String malus_bonus = splitted_line[2];
-
+		
+		//On modifie toutes les valeurs "sales" pour avoir un entier
 		malus_bonus = malus_bonus.replaceAll(" ", "").replace("€1", "").replace("€", "").replace("\"", "");
 
+		// On traite les cas particuliers : 
 		if (malus_bonus.equals("150kW(204ch)") || malus_bonus.equals("100kW(136ch)"))
 		{
 			return;
@@ -60,13 +55,16 @@ public class CarMap extends Mapper<Object, Text, Text, Text> {
 			malus_bonus="0"; 
 		} 
 
-		// Gestion colonne cout energie
+		// Recuperation de la colonne cout energie
         String cout;
  	    cout = splitted_line[4];
+		//On separe les valeurs par les espaces
 		String[] cout_splitted = cout.split(" ");
-		if(cout_splitted.length == 2){  // ex : |967,€]
+		
+		//La taille du tableau est doit de 2 ou 3 on ignore seulement la derbière valeur qui est le symbole €
+		if(cout_splitted.length == 2){  
 			cout = cout_splitted[0];
-		} else if(cout_splitted.length == 3){ // ex : [1,005,€]
+		} else if(cout_splitted.length == 3){ 
 			cout= cout_splitted[0] + cout_splitted[1];
 		}
 
