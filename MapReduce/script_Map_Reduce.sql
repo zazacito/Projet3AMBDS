@@ -83,3 +83,6 @@ avictor@vps-f1f17a1e:~$ hadoop fs -get /user/avictor/results/Projet3A/part-r-000
 --Copie du fichier de résultat sur ma machine
 victorazalbert1@MacBook-Pro MapReduce % scp -P 9922 avictor@135.125.106.207:~/part-r-00000 ./
 
+--Conversion en fichier csv
+import-csv .\part-r-00000 -delimiter "`t" | export-csv resultMapReduce.csv -NoTypeInformation
+
