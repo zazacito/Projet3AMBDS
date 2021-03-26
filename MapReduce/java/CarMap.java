@@ -56,8 +56,7 @@ public class CarMap extends Mapper<Object, Text, Text, Text> {
 		} 
 
 		// Recuperation de la colonne cout energie
-        String cout;
- 	    cout = splitted_line[4];
+        	String cout = splitted_line[4];
 		//On separe les valeurs par les espaces
 		String[] cout_splitted = cout.split(" ");
 		
