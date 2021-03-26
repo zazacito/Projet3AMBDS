@@ -71,6 +71,7 @@ public class CarMap extends Mapper<Object, Text, Text, Text> {
 		// Recuperation de la colonne Rejet CO2
 		String rejet = splitted_line[3];
 
+		//Cast des valeurs en int
 		int malus_bonus_int = Integer.parseInt(malus_bonus);
 		int rejet_int = Integer.parseInt(rejet);
 		int cout_int = Integer.parseInt(cout);
