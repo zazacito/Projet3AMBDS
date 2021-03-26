@@ -20,16 +20,16 @@ public class CarReduce extends Reducer<Text, Text, Text, Text> {
 	
 	public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 		
-		String malus_bonus;
+		String bonus;
 		String rejet;
 		String cout;
 		
-		int sommeBonus_Malus = 0;
+		int sommeBonus = 0;
 		int sommeRejet = 0;
 		int sommeCout = 0;
 
 		int count=0;
-		int moyenneMalus_Bonus = 0;
+		int moyenneBonus = 0;
 		int moyenneRejet = 0;
 		int moyenneCout = 0;
 
@@ -38,20 +38,20 @@ public class CarReduce extends Reducer<Text, Text, Text, Text> {
 			String node = i.next().toString(); 
 
 			String[] splitted_node = node.split("\\|"); 
-			malus_bonus = splitted_node[0];
+			bonus = splitted_node[0];
 			rejet = splitted_node[1];
 			cout = splitted_node[2];
 
-			sommeBonus_Malus += Integer.parseInt(malus_bonus);
+			sommeBonus += Integer.parseInt(bonus);
 			sommeRejet += Integer.parseInt(rejet);
 			sommeCout += Integer.parseInt(cout);
 
 			count++;
 		}
-		moyenneMalus_Bonus = sommeBonus_Malus/count;
+		moyenneBonus = sommeBonus/count;
 		moyenneRejet = sommeRejet/count;
 		moyenneCout = sommeCout/count;
 
-		context.write(key, new Text(moyenneMalus_Bonus + "\t" + moyenneRejet + "\t" + moyenneCout));
+		context.write(key, new Text(moyenneBonus + "\t" + moyenneRejet + "\t" + moyenneCout));
 	}
 }
