@@ -68,14 +68,14 @@ public class CarMap extends Mapper<Object, Text, Text, Text> {
 			cout= cout_splitted[0] + cout_splitted[1];
 		}
 
-		// Gestion colonne Rejet CO2
+		// Recuperation de la colonne Rejet CO2
 		String rejet = splitted_line[3];
 
 		int malus_bonus_int = Integer.parseInt(malus_bonus);
 		int rejet_int = Integer.parseInt(rejet);
 		int cout_int = Integer.parseInt(cout);
 	
-		// couple clé/valeurs
+		// clé/valeurs -> clé = marque et valeur -> le reste
 		String new_value = String.valueOf(malus_bonus_int) + "|" +  String.valueOf(rejet_int) + "|" + String.valueOf(cout_int);
 		
         context.write(new Text(marque), new Text(new_value));
