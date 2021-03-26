@@ -37,10 +37,6 @@ public class CarReduce extends Reducer<Text, Text, Text, Text> {
 		while(i.hasNext()) {
 			String node = i.next().toString(); 
 
-			System.err.print(key);
-			System.err.print("	");
-			System.err.println(node);
-
 			String[] splitted_node = node.split("\\|"); 
 			malus_bonus = splitted_node[0];
 			rejet = splitted_node[1];
